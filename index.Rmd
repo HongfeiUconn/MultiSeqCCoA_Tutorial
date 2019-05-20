@@ -17,7 +17,6 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -25,9 +24,10 @@ knitr::opts_chunk$set(
 )
 ```
 
+
 This tutorial uses an empirical example to describe what we can achieve from MultiSeqCCoA. The reference is recommended as 
 
-> Cao X, Folta T, Li H, Zhu R (2019) A New Method to Understand the Online Word of Mouth Dynamics: Multi-View Sequential Canonical Covariance Analysis 
+> "Cao X, Folta T, Li H, Zhu R (2019) A New Method to Understand the Online Word of Mouth Dynamics: Multi-View Sequential Canonical Covariance Analysis"
 
 This paper is currently under review. For a detailed introduction to MultiSeqCCoA, please refer to <a href="/MultiSeqCCoA.pptx" download="MultiSeqCCoA.pptx">MultiSeqCCoA.pptx</a>.
 
@@ -44,7 +44,10 @@ library(anytime)
 
 ## Read Data
 
-The sample dataset is available [here]()
+The sample dataset is available:
+    * <a href="/sample_data/UA_comments.csv" download="UA_comments.csv">UA_comments.csv</a>
+    * <a href="/sample_data/AA_comments.csv" download="AA_comments.csv">AA_comments.csv</a>
+    * <a href="/sample_data/SW_comments.csv" download="SW_comments.csv">SW_comments.csv</a>
 
 ```{r, warning = FALSE}
 UA_comments <- fread("UA_comments.csv")
