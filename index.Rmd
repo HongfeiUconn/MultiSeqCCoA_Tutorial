@@ -27,6 +27,8 @@ knitr::opts_chunk$set(
 
 This tutorial uses an empirical example to describe what we can achieve from MultiSeqCCoA.
 
+For a detailed introduction to MultiSeqCCoA, please refer to <a href="/MultiSeqCCoA.pptx" download="MultiSeqCCoA.pptx">MultiSeqCCoA.pptx</a>.
+
 ## Import libraries
 
 * All data filter and rearrangement are based on package [data.table](https://cran.r-project.org/web/packages/data.table/data.table.pdf).
