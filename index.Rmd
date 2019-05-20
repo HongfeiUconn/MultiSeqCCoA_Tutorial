@@ -25,9 +25,11 @@ knitr::opts_chunk$set(
 )
 ```
 
-This tutorial uses an empirical example to describe what we can achieve from MultiSeqCCoA.
+This tutorial uses an empirical example to describe what we can achieve from MultiSeqCCoA. The reference is recommended as 
 
-For a detailed introduction to MultiSeqCCoA, please refer to <a href="/MultiSeqCCoA.pptx" download="MultiSeqCCoA.pptx">MultiSeqCCoA.pptx</a>.
+> Cao X, Folta T, Li H, Zhu R (2019) A New Method to Understand the Online Word of Mouth Dynamics: Multi-View Sequential Canonical Covariance Analysis 
+
+This paper is currently under review. For a detailed introduction to MultiSeqCCoA, please refer to <a href="/MultiSeqCCoA.pptx" download="MultiSeqCCoA.pptx">MultiSeqCCoA.pptx</a>.
 
 ## Import libraries
 
@@ -229,8 +231,6 @@ for (i in c(1:3)) {
 
 
 
-# References
 
-> Cao X, Folta T, Li H, Zhu R (2019) A New Method to Understand the Online Word of Mouth Dynamics: Multi-View Sequential Canonical Covariance Analysis 
 
 
