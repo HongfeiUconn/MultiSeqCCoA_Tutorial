@@ -1,0 +1,13 @@
+comment_id,Comment ID
+post_id,Post ID of this comment
+company_name,Name of the airline company
+like_num,Number of like's of this comment
+word_count,Word count of this comment
+comment_count,Comment count of this comment
+unix_time,Unix time
+happy,Happy score
+angry,Angry score
+excited,Excited score
+sad,Sad score
+fear,Fear score
+bored,Bored score

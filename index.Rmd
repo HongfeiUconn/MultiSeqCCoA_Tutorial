@@ -1,0 +1,234 @@
+---
+title: "A Tutorial to Multi-view Sequential Canonical Covariance Analysis"
+knit: (function(input_file, encoding) {
+  out_dir <- 'docs';
+  rmarkdown::render(input_file,
+ encoding=encoding,
+ output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
+author: "Hongfei Li"
+date: "Last Updated: `r format(Sys.time(), '%B %d, %Y')`"
+output: 
+  rmarkdown::html_vignette:
+    includes:
+      in_header: "favicon.html"
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This tutorial uses an empirical example to describe what we can achieve from MultiSeqCCoA.
+
+## Import libraries
+
+* All data filter and rearrangement are based on package [data.table](https://cran.r-project.org/web/packages/data.table/data.table.pdf).
+* Anytime package is used for converting Unix time to real time.
+
+```{r,  warning = FALSE}
+library(MultiSeqCCA)
+library(data.table)
+library(anytime)
+```
+
+## Read Data
+
+The sample dataset is available [here]()
+
+```{r, warning = FALSE}
+UA_comments <- fread("UA_comments.csv")
+AA_comments <- fread("AA_comments.csv")
+SW_comments <- fread("SW_comments.csv")
+```
+
+## Data structure
+
+Column Names
+
+```{r, warning = FALSE}
+colnames(UA_comments)
+```
+
+Variable Descriptions
+
+```{r, warning = FALSE}
+var_des <- fread("var_description.csv")
+knitr::kable(var_des)
+```
+
+Data structure
+```{r, warning = FALSE}
+head(UA_comments)
+```
+
+## Data Rearrangement
+
+### Combine three views
+
+```{r, warning = FALSE}
+company_tensor <- rbind(UA_comments, AA_comments, SW_comments)
+```
+
+
+### Create an aggregate function
+
+```{r, warning = FALSE}
+aggregation <- function(dat, interval, m){
+  ## create a null data table with the same structure of dat
+  result <- dat[word_count > max(word_count),]
+  ## find all unique time points with at least one comment, and sort these time points
+  time_points <- sort(unique(dat$unix_time))
+  ## aggregate every m minutes
+  for (time_point in seq(from = time_points[1]+interval, to = tail(time_points,1) - interval, by = 60*m)){
+    temp = dat[unix_time < time_point + interval & unix_time >= time_point - interval,
+               list(like_num = mean(like_num),
+                 comment_count = mean(comment_count),
+                 word_count = mean(word_count),
+                 happy = mean(happy),
+                 angry = mean(angry),
+                 excited = mean(excited),
+                 sad = mean(sad),
+                 fear = mean(fear),
+                 bored = mean(bored),
+                 unix_time = time_point),
+               by = c("company_name")]
+    if (length(temp$company_name) == 3) {result = rbind(temp, result)}
+    print(time_point)
+  }
+  return(result[order(unix_time)])
+}
+```
+
+### Aggregation
+
+```{r, warning = FALSE, results = "hide"}
+agg_result <- aggregation(company_tensor[,-c("comment_id","post_id")],1800*3, 15)
+```
+
+
+#### The following section is optional
+
+
+- We can add weight to comments with different like numbers or comment number
+
+```{r, warning = FALSE}
+agg_result[,c(5:10)] <- agg_result[,c(5:10)] *sqrt(agg_result$like_num + agg_result$comment_count)
+agg_result <- agg_result[,-c("like_num","comment_count","word_count")]
+```
+
+- Making the time points uniformly distributed (optional)
+
+- To execute MultiSeqCCoA, we need each view with the same number of observations. The above aggregation algorithm can guarantee the three views with the same number of time points. However, these time points are not uniformly distributed. At a specific time point, if there are fewer than three companies with comments, this time point will be disregarded.
+
+```{r, warning = FALSE}
+get_timepoints <- function(unix_time, step = 60*15){
+  temp <- sort(unique(unix_time))
+  return (seq(from = temp[1] + step, to = tail(temp,1)-step, by = step))
+}
+
+all_time_points <- get_timepoints(agg_result$unix_time)
+
+all_time_points <- data.table(all_time_points)
+setnames(all_time_points,"all_time_points","unix_time")
+```
+
+- get full table
+
+```{r, warning = FALSE}
+UA_table <- merge(all_time_points, agg_result[company_name == "United"],by = "unix_time", all.x = TRUE)
+AA_table <- merge(all_time_points, agg_result[company_name == "AmericanAirlines"],by = "unix_time", all.x = TRUE)
+SW_table <- merge(all_time_points, agg_result[company_name == "Southwest"],by = "unix_time", all.x = TRUE)
+```
+
+- smoothing: Zeileis, A., & Grothendieck, G. (2005). zoo: S3 infrastructure for regular and irregular time series. arXiv preprint math/0505527.
+
+```{r, warning = FALSE}
+my_fillna <- function(a){
+  return(zoo::na.fill(a,"extend"))
+}
+
+
+UA_table[, c(3:8) := lapply(.SD, my_fillna), .SDcols = c(3:8)]
+UA_table[,company_name:= "United"]
+
+AA_table[, c(3:8) := lapply(.SD, my_fillna), .SDcols = c(3:8)]
+AA_table[,company_name:= "AmericanAirlines"]
+
+SW_table[, c(3:8) := lapply(.SD, my_fillna), .SDcols = c(3:8)]
+SW_table[,company_name:= "Southwest"]
+
+agg_result_uniform <- rbind(UA_table, AA_table, SW_table)
+
+```
+
+
+### split to matrix
+
+```{r, warning = FALSE}
+for (company in c("United","AmericanAirlines",
+                  "Southwest")) {
+  dat <- agg_result_uniform[company_name == company, -c("company_name","unix_time")]
+  dat <- as.matrix(dat)
+  dat <- scale(dat, center = FALSE)
+  assign(paste(company,"matrix",sep = "_") ,dat)
+}
+```
+
+
+## Execute MultiSeqCCoA
+
+### Tuning Parameters
+
+- Bandwidth, Directions
+
+
+```{r, warning = FALSE}
+# The aggregate unit is 15 minites, so the bandwidth defined as follows represents one week
+bandwidth <- 24*7*4
+
+# Set the number of directions (output of the dimension-reduction results) as 1
+directions <- 1
+
+```
+
+### MultiSeqCCoA
+
+```{r, warning = FALSE, results = "hide"}
+# The input is a list of matrics with the same number of rows (time points), the number of columns (variables) does not need to be the same
+input <- list(United_matrix,AmericanAirlines_matrix,Southwest_matrix)
+
+
+output <- MultiSeqCCA(input, K = directions, bw = bandwidth, control = list("tau" = 1e-3),initial = "PMA", maxitr = 1000, verbose = TRUE, ncore = 0)
+```
+
+### Visualize the results
+
+```{r, warning = FALSE}
+par(mfrow = c(3,1))
+par(mar = c(2, 2, 0, 0))
+for (i in c(1:3)) {
+  plot.MultiSeqCCA(output, view = i, var_loc = c(1:6), tr_rank = 1,tr_weight = TRUE, type = "l", lty = 1:3, lwd = 3)
+}
+
+```
+
+
+
+
+
+
+
+
+
+# References
+
+> Cao X, Folta T, Li H, Zhu R (2019) A New Method to Understand the Online Word of Mouth Dynamics: Multi-View Sequential Canonical Covariance Analysis 
+
+
