@@ -5,7 +5,7 @@ knit: (function(input_file, encoding) {
   rmarkdown::render(input_file,
  encoding=encoding,
  output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
-author: "Hongfei Li"
+author: "[Hongfei Li](https://hongfeiuconn.github.io/personal-website/)"
 date: "Last Updated: `r format(Sys.time(), '%B %d, %Y')`"
 output: 
   rmarkdown::html_vignette:
@@ -25,9 +25,15 @@ knitr::opts_chunk$set(
 ```
 
 
-This tutorial uses an empirical example to describe what we can achieve from MultiSeqCCoA. The reference is recommended as 
+This tutorial uses an empirical example to describe what we can achieve from MultiSeqCCoA. The package was written by [Ruoqing Zhu](https://sites.google.com/site/teazrq/). The reference of the paper that put forward this package is recommended as 
 
 > "Cao X, Folta T, Li H, Zhu R (2019) A New Method to Understand the Online Word of Mouth Dynamics: Multi-View Sequential Canonical Covariance Analysis"
+
+For all the authors' information, please see:
+[Xian Cao](https://www.bsu.edu/academics/collegesanddepartments/management/about-us/faculty-and-staff/caoxian)
+[Timothy Folta](https://www.business.uconn.edu/person/timothy-folta/)
+[Hongfei Li](https://hongfeiuconn.github.io/personal-website/)
+[Ruoqing Zhu](https://sites.google.com/site/teazrq/)
 
 This paper is currently under review. For a detailed introduction to MultiSeqCCoA, please refer to <a href="MultiSeqCCoA.pptx#" class="download" title="MultiSeqCCoA.pptx">MultiSeqCCoA.pptx</a>.
 
