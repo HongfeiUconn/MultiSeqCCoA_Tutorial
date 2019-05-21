@@ -45,9 +45,9 @@ library(anytime)
 ## Read Data
 
 The sample dataset is available:
-    * <a href="/sample_data/UA_comments.csv" download="UA_comments.csv">UA_comments.csv</a>
-    * <a href="/sample_data/AA_comments.csv" download="AA_comments.csv">AA_comments.csv</a>
-    * <a href="/sample_data/SW_comments.csv" download="SW_comments.csv">SW_comments.csv</a>
+    <a href="/sample_data/UA_comments.csv" download="UA_comments.csv">UA_comments.csv</a>,
+    <a href="/sample_data/AA_comments.csv" download="AA_comments.csv">AA_comments.csv</a>,
+    <a href="/sample_data/SW_comments.csv" download="SW_comments.csv">SW_comments.csv</a>.
 
 ```{r, warning = FALSE}
 UA_comments <- fread("UA_comments.csv")
